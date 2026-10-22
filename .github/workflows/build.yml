@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,8 +20,7 @@ jobs:
       - name: Fullscreen and landscape
         run: |
           sed -i 's/<activity/<activity android:screenOrientation="sensorLandscape"/' android/app/src/main/AndroidManifest.xml
-          sed -i 's#<application#<uses-permission android:name="android.permission.VIBRATE" />\n<application#' android/app/src/main/AndroidManifest.xml
-          F=$(find android/app/src/main/java -name MainActivity.java))
+          F=$(find android/app/src/main/java -name MainActivity.java)
           cat > "$F" <<'EOF'
           package com.mustythecreator.banditdash;
 
@@ -56,6 +55,9 @@ jobs:
             }
           }
           EOF
+      - name: Vibrate permission
+        run: |
+          sed -i '/<application/i <uses-permission android:name="android.permission.VIBRATE" />' android/app/src/main/AndroidManifest.xml
       - run: npx cap sync android
       - run: cd android && chmod +x gradlew && ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
