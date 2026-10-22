@@ -20,7 +20,8 @@ jobs:
       - name: Fullscreen and landscape
         run: |
           sed -i 's/<activity/<activity android:screenOrientation="sensorLandscape"/' android/app/src/main/AndroidManifest.xml
-          F=$(find android/app/src/main/java -name MainActivity.java)
+          sed -i 's#<application#<uses-permission android:name="android.permission.VIBRATE" />\n<application#' android/app/src/main/AndroidManifest.xml
+          F=$(find android/app/src/main/java -name MainActivity.java))
           cat > "$F" <<'EOF'
           package com.mustythecreator.banditdash;
 
