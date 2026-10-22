@@ -1,5 +1,8 @@
 {
   "appId": "com.mustythecreator.banditdash",
   "appName": "Bandit Dash",
-  "webDir": "www"
+  "webDir": "www",
+  "plugins": {
+    "LocalNotifications": { "smallIcon": "ic_stat_bandit" }
+  }
 }
