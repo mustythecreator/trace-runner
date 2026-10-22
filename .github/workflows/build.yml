@@ -58,6 +58,26 @@ jobs:
       - name: Vibrate permission
         run: |
           sed -i '/<application/i <uses-permission android:name="android.permission.VIBRATE" />' android/app/src/main/AndroidManifest.xml
+      - name: Notification permission
+        run: |
+          sed -i '/<application/i <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />' android/app/src/main/AndroidManifest.xml
+      - name: Icons and splash
+        continue-on-error: true
+        run: |
+          R=android/app/src/main/res
+          for d in "mdpi 108 48 24" "hdpi 162 72 36" "xhdpi 216 96 48" "xxhdpi 324 144 72" "xxxhdpi 432 192 96"; do
+            set -- $d
+            mkdir -p $R/mipmap-$1 $R/drawable-$1
+            convert icon-fg.png -resize $2x$2 $R/mipmap-$1/ic_launcher_foreground.png
+            convert icon.png -resize $3x$3 $R/mipmap-$1/ic_launcher.png
+            convert icon.png -resize $3x$3 $R/mipmap-$1/ic_launcher_round.png
+            convert notif.png -resize $4x$4 $R/drawable-$1/ic_stat_bandit.png
+          done
+          sed -E -i 's/#[0-9A-Fa-f]{6}/#14102E/' $R/values/ic_launcher_background.xml
+          for f in $(find $R -name splash.png); do
+            g=$(identify -format %wx%h $f)
+            convert -size $g xc:'#14102E' \( icon.png -resize 360x360 \) -gravity center -composite $f
+          done
       - run: npx cap sync android
       - run: cd android && chmod +x gradlew && ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
