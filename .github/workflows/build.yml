@@ -62,22 +62,32 @@ jobs:
         run: |
           sed -i '/<application/i <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />' android/app/src/main/AndroidManifest.xml
       - name: Icons and splash
-        continue-on-error: true
         run: |
-          R=android/app/src/main/res
-          for d in "mdpi 108 48 24" "hdpi 162 72 36" "xhdpi 216 96 48" "xxhdpi 324 144 72" "xxxhdpi 432 192 96"; do
-            set -- $d
-            mkdir -p $R/mipmap-$1 $R/drawable-$1
-            convert icon-fg.png -resize $2x$2 $R/mipmap-$1/ic_launcher_foreground.png
-            convert icon.png -resize $3x$3 $R/mipmap-$1/ic_launcher.png
-            convert icon.png -resize $3x$3 $R/mipmap-$1/ic_launcher_round.png
-            convert notif.png -resize $4x$4 $R/drawable-$1/ic_stat_bandit.png
-          done
-          sed -E -i 's/#[0-9A-Fa-f]{6}/#14102E/' $R/values/ic_launcher_background.xml
-          for f in $(find $R -name splash.png); do
-            g=$(identify -format %wx%h $f)
-            convert -size $g xc:'#14102E' \( icon.png -resize 360x360 \) -gravity center -composite $f
-          done
+          pip install pillow
+          python3 - <<'PY'
+          import os,glob
+          from PIL import Image
+          R='android/app/src/main/res'
+          fg=Image.open('icon-fg.png').convert('RGBA')
+          ic=Image.open('icon.png').convert('RGBA')
+          nt=Image.open('notif.png').convert('RGBA')
+          for d,a,b,c in [('mdpi',108,48,24),('hdpi',162,72,36),('xhdpi',216,96,48),('xxhdpi',324,144,72),('xxxhdpi',432,192,96)]:
+              os.makedirs(R+'/mipmap-'+d,exist_ok=True)
+              os.makedirs(R+'/drawable-'+d,exist_ok=True)
+              fg.resize((a,a),Image.LANCZOS).save(R+'/mipmap-'+d+'/ic_launcher_foreground.png')
+              ic.resize((b,b),Image.LANCZOS).save(R+'/mipmap-'+d+'/ic_launcher.png')
+              ic.resize((b,b),Image.LANCZOS).save(R+'/mipmap-'+d+'/ic_launcher_round.png')
+              nt.resize((c,c),Image.LANCZOS).save(R+'/drawable-'+d+'/ic_stat_bandit.png')
+          for p in glob.glob(R+'/values/ic_launcher_background.xml'):
+              open(p,'w').write('<?xml version="1.0" encoding="utf-8"?><resources><color name="ic_launcher_background">#14102E</color></resources>')
+          for f in glob.glob(R+'/**/splash.png',recursive=True):
+              w,h=Image.open(f).size
+              bg=Image.new('RGBA',(w,h),(20,16,46,255))
+              s=min(w,h)//3
+              bg.alpha_composite(ic.resize((s,s)),((w-s)//2,(h-s)//2))
+              bg.convert('RGB').save(f)
+          print('ICON FILES WRITTEN:',len(glob.glob(R+'/mipmap-*/ic_launcher*.png')))
+          PY
       - run: npx cap sync android
       - run: cd android && chmod +x gradlew && ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
