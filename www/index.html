@@ -23,7 +23,7 @@ const Ads={onGameOver(n){/* AdMob later */},rewarded(cb){say('Test mode: free co
 const SK=[{f:'#9aa1b5',j:'#262c52',s:'#e0733a',c:0,a:0},{f:'#c4ae92',j:'#6b2a35',s:'#ffd23f',c:500,a:1},{f:'#a8c4b8',j:'#1f4f46',s:'#9cff57',c:1200,a:2},{f:'#b7a6d8',j:'#3a2a6b',s:'#ff4fa3',c:2500,a:3},{f:'#e6cf8a',j:'#4a3a12',s:'#39e5ff',c:5000,a:4},{f:'#6b7190',j:'#0d1026',s:'#ff4f4f',c:9000,a:5}];
 const BT=[{c:0,f:'#9cff57',t:'#2f7a1f',k:'spring'},{c:800,f:'#ff5a3c',t:'#7a1f0f',k:'rocket'},{c:2000,f:'#f4f7ff',t:'#7d8cc4',k:'wing'},{c:4000,f:'#1fb8d8',t:'#0f6a85',k:'neon'}];
 let BOOT=null;
-const DIFF={w0:{n:'Midnight Rooftops',sp:250,rf:1.02,m:1.5,L:3600,g:[.26,.38],cr:.3}};
+const DIFF={w0:{n:'Midnight Rooftops',sp:250,rf:1.02,m:1.5,L:5000,g:[.26,.38],cr:.3}};
 function def(){return{coins:0,best:{w0:0},stars:{w0:0},runs:0,own:[0],skin:0,up:{s:0,m:0,b:0,g:0},sfx:1,mus:1,vib:1,terms:0,keys:0,rem:1,dm:{d:'',login:0,races:0,coins:0,wins:0,pu:0},dc:{},gift:0,ad:{d:'',n:0},boots:[0],boot:0,tut:0}}
 let S=def();
 try{Object.assign(S,JSON.parse(localStorage.getItem('bd2')||'{}'))}catch(e){}
@@ -141,7 +141,7 @@ function die(r,ok){
 function revive(){
   usedC++;const px=P.x+P.w/2;let p=plats.find(q=>q.x<=px&&q.x+q.w>=px);
   if(!p)p=plats.find(q=>q.x>px)||plats[plats.length-1];
-  if(p.x>px){const sh=p.x-(px-20);plats.forEach(q=>q.x-=sh);cr.forEach(c=>c.x-=sh);cn.forEach(c=>c.x-=sh);pu.forEach(u=>u.x-=sh);kys.forEach(k=>k.x-=sh);genX-=sh;dist+=sh/10;bgx+=sh}
+  if(p.x>px){const sh=p.x-(px-20);plats.forEach(q=>q.x-=sh);cr.forEach(c=>c.x-=sh);cn.forEach(c=>c.x-=sh);pu.forEach(u=>u.x-=sh);kys.forEach(k=>k.x-=sh);genX-=sh;bgx+=sh}
   cr=cr.filter(c=>c.x<P.x-40||c.x>P.x+260);
   P.y=p.y;P.vy=0;P.air=false;P.jumps=0;P.so=0;pw.s=Math.max(pw.s,5);inv=1.5;ts=1;state='play';
 }
@@ -389,7 +389,7 @@ function drawHud(){
   ctx.fillStyle='rgba(230,238,242,.25)';ctx.fillRect(x0,y-1,w,3);
   rv.forEach(r=>{ctx.fillStyle=r.pal.s;ctx.beginPath();ctx.arc(x0+w*Math.min(1,r.d/df.L),y,4,0,7);ctx.fill()});
   {const px=x0+w*Math.min(1,dist/df.L),rk=rv.filter(r=>r.d>dist).length+1;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(px,y,10,0,7);ctx.fill();tx(String(rk),px,y+5,14,'#1a0b4d','center')}
-  if(fin)tx('Finish!',W/2,130,48,'#ffd23f','center');
+  if(fin)banner('FINISH!',W/2,130,40,Math.min(1,(performance.now()-finAt)/200),'#ffd23f','#ff8a1f');
   ctx.fillStyle='#e6eef2';ctx.fillRect(W-40,14,6,20);ctx.fillRect(W-28,14,6,20);
 }
 function coinIcon(x,y,r){ctx.fillStyle='#ffd23f';ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.fillStyle='#e0a800';ctx.beginPath();ctx.arc(x,y,r*.5,0,7);ctx.fill()}
@@ -632,7 +632,11 @@ function drawSpot(){
   ctx.fillStyle='rgba(4,2,20,.8)';ctx.beginPath();ctx.rect(0,0,W,H);ctx.arc(t.cx,t.cy,t.r,0,Math.PI*2,true);ctx.fill('evenodd');
   const q=.5+.5*Math.sin(tm*5);ctx.strokeStyle='rgba(255,210,63,'+(.5+.5*q)+')';ctx.lineWidth=4;ctx.beginPath();ctx.arc(t.cx,t.cy,t.r+4+q*4,0,7);ctx.stroke();
   const bx=Math.min(Math.max(t.cx,170),W-170),by=t.cy<H/2?t.cy+t.r+34:t.cy-t.r-24;
-  ctx.fillStyle='#fff4d6';rr(bx-150,by-20,300,36,12);ctx.fill();tx(t.t,bx,by+4,15,'#2a1200','center');
+  const up=t.cy<H/2,g=ctx.createLinearGradient(0,by-22,0,by+18);g.addColorStop(0,'#fff8e1');g.addColorStop(1,'#ffe3a3');
+  ctx.fillStyle='rgba(0,0,0,.35)';rr(bx-150,by-17,300,40,14);ctx.fill();
+  ctx.fillStyle=g;rr(bx-150,by-22,300,40,14);ctx.fill();ctx.strokeStyle='#ff8a1f';ctx.lineWidth=3;ctx.stroke();
+  ctx.fillStyle='#ffe3a3';ctx.beginPath();if(up){ctx.moveTo(bx-10,by-22);ctx.lineTo(bx,by-34);ctx.lineTo(bx+10,by-22)}else{ctx.moveTo(bx-10,by+18);ctx.lineTo(bx,by+30);ctx.lineTo(bx+10,by+18)}ctx.fill();
+  tx(t.t,bx,by+4,15,'#3a1c00','center');
 }
 function tutCourse(){
   const y=260,st=plats[0],e0=st.x+st.w;
@@ -650,22 +654,37 @@ function tutRace(rd){
   else if(tutS===6){tutT+=rd;if(tutT>1.6||pw.s>0){tutS=7;tutT=0;ts=1}}
   else if(tutS===7){tutT+=rd;if(tutT>2){tutS=8;S.tut=5;save()}}
 }
+let lastS=-1,tutAT=0;
+function banner(t,cx,y,sz,a,c1,c2){
+  ctx.save();ctx.translate(cx,y);const z=.8+.2*a+.02*Math.sin(tm*6);ctx.scale(z,z);ctx.globalAlpha=Math.min(1,a*1.5);
+  ctx.font='italic 900 '+sz+'px system-ui,sans-serif';const w=ctx.measureText(t).width+56,h=sz+26;
+  const g=ctx.createLinearGradient(-w/2,0,w/2,0);g.addColorStop(0,c1);g.addColorStop(1,c2);
+  ctx.fillStyle='rgba(0,0,0,.35)';rr(-w/2,-h/2+5,w,h,h/2);ctx.fill();
+  ctx.fillStyle=g;rr(-w/2,-h/2,w,h,h/2);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.25)';rr(-w/2+10,-h/2+4,w-20,h*.36,h*.18);ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=2;rr(-w/2,-h/2,w,h,h/2);ctx.stroke();
+  ctx.textAlign='center';ctx.lineJoin='round';ctx.lineWidth=sz*.2;ctx.strokeStyle='rgba(30,8,60,.9)';ctx.strokeText(t,0,sz*.34);ctx.fillStyle='#fff';ctx.fillText(t,0,sz*.34);
+  ctx.restore();
+}
 function drawTutRace(){
-  const cx=W/2;
+  const cx=W/2;if(lastS!==tutS){lastS=tutS;tutAT=tm}
+  const a=Math.min(1,(tm-tutAT)/.25);
   if(tutS===1||tutS===3||tutS===4){
     ctx.fillStyle='rgba(4,2,20,.4)';ctx.fillRect(0,0,W,H);
-    const q=.5+.5*Math.sin(tm*6);ctx.strokeStyle='rgba(255,210,63,'+(.5+.5*q)+')';ctx.lineWidth=5;ctx.beginPath();ctx.arc(W-110,H/2+10,34+q*8,0,7);ctx.stroke();
-    ctx.fillStyle='rgba(255,210,63,.35)';ctx.beginPath();ctx.arc(W-110,H/2+10,26,0,7);ctx.fill();tx('TAP',W-110,H/2+17,18,'#fff','center');
-    tx(tutS===4?'TAP AGAIN IN THE AIR':'TAP TO JUMP',cx,96,34,'#ffd23f','center');
-    if(tutS>=3)tx('Two taps = double jump',cx,124,16,'#fff4d6','center');
+    const q=.5+.5*Math.sin(tm*6),rx=W-110,ry=H/2+10;
+    ctx.strokeStyle='rgba(255,210,63,'+(.4+.5*q)+')';ctx.lineWidth=5;ctx.beginPath();ctx.arc(rx,ry,36+q*9,0,7);ctx.stroke();
+    const g=ctx.createRadialGradient(rx,ry-6,4,rx,ry,30);g.addColorStop(0,'#ffe27a');g.addColorStop(1,'#ff8a1f');ctx.fillStyle=g;ctx.beginPath();ctx.arc(rx,ry,28,0,7);ctx.fill();
+    tx('TAP',rx,ry+7,20,'#3a1c00','center');
+    banner(tutS===4?'TAP AGAIN IN THE AIR':'TAP TO JUMP',cx,92,tutS===4?28:34,a,'#ff8a1f','#ff3d7f');
+    if(tutS>=3)banner('Two taps = double jump',cx,140,15,a,'#7c3aed','#2563eb');
   }
   if(tutS===6&&tutPu){
-    const X=tutPu.x,Y=tutPu.y-40+Math.sin(tm*5)*3;
-    ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(X-9,Y,8,10,0,0,7);ctx.ellipse(X+9,Y,8,10,0,0,7);ctx.fill();
-    ctx.fillStyle='#12062f';ctx.beginPath();ctx.arc(X-9,Y+4,4,0,7);ctx.arc(X+9,Y+4,4,0,7);ctx.fill();
-    tx('Grab glowing orbs for power-ups',cx,96,24,'#ffd23f','center');
+    const X=tutPu.x,Y=tutPu.y,b=Math.sin(tm*6)*4;
+    ctx.strokeStyle='rgba(255,210,63,.9)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(X,Y,34+Math.sin(tm*6)*3,0,7);ctx.stroke();
+    ctx.fillStyle='#ffd23f';ctx.beginPath();ctx.moveTo(X,Y-38+b);ctx.lineTo(X-12,Y-56+b);ctx.lineTo(X+12,Y-56+b);ctx.fill();
+    banner('EYES ON THE POWER-UPS',cx,92,28,a,'#14b8a6','#2563eb');
   }
-  if(tutS===7){tx('GOOD LUCK!',cx,112,44,'#ffd23f','center');tx('You are in control now',cx,142,16,'#fff4d6','center')}
+  if(tutS===7)banner('GOOD LUCK!',cx,112,46,a,'#ffd23f','#ff8a1f');
 }
 function drawCont(){
   const cx=W/2;ctx.fillStyle='rgba(6,5,15,.72)';ctx.fillRect(0,0,W,H);
@@ -689,7 +708,7 @@ function drawTerms(){
   B(x+20,y+h-60,200,44,'Accept','#14b8a6',()=>{S.terms=1;save();state='menu';remind()});
   B(x+w-220,y+h-60,200,44,'Decline','#6c7ae0',()=>{say('You need to accept to play')});
 }
-function drawToast(){if(tm<toastU){ctx.fillStyle='rgba(6,5,15,.88)';rr(W/2-170,H-76,340,34,10);ctx.fill();tx(toast,W/2,H-54,15,'#e6eef2','center')}}
+function drawToast(){if(tm<toastU){const w=Math.max(200,toast.length*8.5+50);ctx.fillStyle='rgba(0,0,0,.35)';rr(W/2-w/2,H-71,w,36,18);ctx.fill();const g=ctx.createLinearGradient(0,H-76,0,H-40);g.addColorStop(0,'#3b1d86');g.addColorStop(1,'#1d0f52');ctx.fillStyle=g;rr(W/2-w/2,H-76,w,36,18);ctx.fill();ctx.strokeStyle='#ff8a1f';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#ff8a1f';ctx.beginPath();ctx.arc(W/2-w/2+18,H-58,5,0,7);ctx.fill();tx(toast,W/2+8,H-53,14,'#fff4e6','center')}}
 function drawOver(){
   const cx=W/2,win=place>0;
   const g=ctx.createLinearGradient(0,0,0,H);if(win){g.addColorStop(0,'#4a3400');g.addColorStop(1,'#1a0b4d')}else{g.addColorStop(0,'#4a0b30');g.addColorStop(1,'#12062f')}
